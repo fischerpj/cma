@@ -4,7 +4,7 @@ Title: Credit Mutuel Data Analysis
 Version: 0.1.0
 Author: GranPiero
 Maintainer: <fischer.pj@gmail.com>
-Description: Identification and Analyse of CashFlow 
-License: MIT
+Description: Identification and Analyse of CashFlow.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
