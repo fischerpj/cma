@@ -5,6 +5,6 @@ Credit Mutuel Analysis
 2. in Docker/xv2 clone **AS R-project-package** "cma"  with  [DESCRIPTION, NAMESPACE, R/, man/]
 3. import data to inst/extdata
 
-3. gh auth login seems already done and not requiring password
+4. gh auth login seems already done and not requiring password
 ## issues
 - fix LICENSE in DESCRIPTION and LICENSE
