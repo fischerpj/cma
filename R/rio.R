@@ -34,5 +34,6 @@ read_year_ <- function(year=2021, x= sheets_(y), y= path_(paste0("CMCC",year,".x
 }
 
 read_all_ <- function(x=2012:2021){
-  x |> purrr::map_dfr(read_year_)
+  x |> purrr::map_dfr(read_year_) |>
+    dplyr::arrange(date)
 }
