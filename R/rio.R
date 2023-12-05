@@ -37,3 +37,43 @@ read_all_ <- function(x=2012:2021){
   x |> purrr::map_dfr(read_year_) |>
     dplyr::arrange(date)
 }
+
+fwrite_cma_ <- function(x= read_all_()){
+  data.table::fwrite(x, path_("cma.csv"))
+}
+
+fread_cma_ <- function(x= path_("cma.csv")){
+  data.table::fread(x)
+}
+
+mini_cma_ <- function(x= group_cma_(), omit= "^date|^tab|^code|^operation|^valeur|^bank|^comptable"){
+  x |> dplyr::select(-dplyr::matches(omit)) |>
+    dplyr::group_by(group)
+}
+
+group_cma_ <- function(x= fread_cma_()){
+  x |> dplyr::mutate(group = dplyr::case_when(stringr::str_detect(libelle, "CHQ|CHEQUE|VIR SEPA")~"chq-vir",
+                                              stringr::str_detect(libelle, "LOYER|JESSICA|ROHR|MEHL|WABEAL|SEBESCAN|ERNENWEIN|PIASNY|BARTHEL")~"loyer",
+                                              stringr::str_detect(libelle, "URSSAF|PREV. ARTISANALE|CPAM|CAISSE REGIONALE D ASSUR|PREVOYANCE|U R S S A F|VIR SECU INDEP")~"secu",
+                                              stringr::str_detect(libelle, "SALZEMAN|THIBAUT|HUGO|THEO|LEPRE|VIR MLE MICHELE|VIR M PIERRE FISCHER|MISSIONSWERK|PORTES OUVERTES")~"libe",
+                                              stringr::str_detect(libelle, "ENERGIES|EAU|TIP LDEF|GARDE|FRAIS|VEOLIA|CHAUFFAGE|CIRRUS|CHEQUIER|CORAIL|AURORE 2000|PARTS SOCIALES|REMUNERATION|PSB AVENIR|PART B|ESSAI VIREMENT|ANNU RET")~"charges",
+                                              stringr::str_detect(libelle, "ASSURANCE RETRA|RSI|CARSAT|AG2R|REUNICA|ASSUR RETRAITE")~"pension",
+                                              stringr::str_detect(libelle, "SEPA DIRECTION GENERALE|TIP IMPOT|VIR DGFIP|DRFIP")~"taxe",
+                                              stringr::str_detect(libelle, "DAB|^RET ")~"cash",
+                                              stringr::str_detect(libelle, "ZANETTE|PEL|VIR 1027801896|^MLE MICHELE FISCHER$|SOUS CAP EXP|SEPA ALSACE FRANCHE COMTE|CLOT 01896 20200401")~"exception",
+                                              stringr::str_detect(libelle, "Solde|^$")~"solde",
+                                              TRUE~NA))
+}
+
+cube_cma_ <- function(x= mini_cma_(), omit="libelle"){
+  x |> dplyr::select(-dplyr::matches(omit)) |>
+    tidyr::pivot_longer(cols= c('debit','credit'), names_to="var") |>
+    dplyr::filter(value!= 0) |>
+    data.table::data.table()
+}
+
+gt_cma_ <- function(x= group_cma_()){
+  x |> gt::gt()
+}
+
+# cube_cma_()[,.(gt=sum(value),.N),.(group,var)][order(-gt)]
