@@ -8,3 +8,15 @@ Description: Identification and Analyse of CashFlow.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Imports:
+  data.table,
+  dplyr,
+  gt,
+  here,
+  lubridate,
+  purrr,
+  readxl,
+  stringi,
+  stringr,
+  tidyr
+RoxygenNote: 7.2.3

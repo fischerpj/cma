@@ -1,14 +1,29 @@
+#' path_
+#' make absolute path
+#' 
+#' @param x last filename
 path_ <- function(x= "CMCC2021.xlsx"){
   here::here("inst/extdata/cmcc/XLSX", x)
 }
 
+#' sheets_
+#' retrieve sheet names in excel file
+#' 
+#' @param x file path
+#' @param y last filename
 sheets_ <- function(x= path_(y), y= "CMCC2021.xlsx"){
   x |>
     readxl::excel_sheets()
 }
 
+#' read_sheet_
+#' read one sheet of data
+#' 
+#' @param x sheet name
+#' @param y file path
 read_sheet_ <- function(x= sheets_(y)[1], y= path_("CMCC2019.xlsx")){
-  result <- readxl::read_excel(y,sheet=x) |>
+debit <- credit <- comptable <- NULL 
+    result <- readxl::read_excel(y,sheet=x) |>
     dplyr::select(-dplyr::matches("^Origine|^Column")) |>
     dplyr::mutate(credit = as.numeric(stringr::str_replace((stringr::str_replace(as.character(credit)," ","" )),",",".")),
                   debit = as.numeric(stringr::str_replace(stringr::str_replace_all(debit," ",""),",","."))
@@ -28,29 +43,47 @@ read_sheet_ <- function(x= sheets_(y)[1], y= path_("CMCC2019.xlsx")){
   return(result)
 }
 
+#' read_year_
+#' read one year of data
+#' 
+#' @param year integer
+#' @param x vector of sheet names
+#' @param y file path
 read_year_ <- function(year=2021, x= sheets_(y), y= path_(paste0("CMCC",year,".xlsx"))){
   purrr::map_dfr(x, read_sheet_, y, .id="tab") |>
     data.table::data.table()
 }
 
+#' read_all_
+#' read all years of data
+#' 
+#' @param x range of years
 read_all_ <- function(x=2012:2021){
   x |> purrr::map_dfr(read_year_) |>
     dplyr::arrange(date)
 }
 
+#' fwrite_cma_
+#' fast write of csv file
+#' 
+#' @param x path
 fwrite_cma_ <- function(x= read_all_()){
   data.table::fwrite(x, path_("cma.csv"))
 }
 
+#' fread_cma_
+#' fast read of csv file
+#' 
+#' @param x path
+#' @export
 fread_cma_ <- function(x= path_("cma.csv")){
   data.table::fread(x)
 }
 
-mini_cma_ <- function(x= group_cma_(), omit= "^date|^tab|^code|^operation|^valeur|^bank|^comptable"){
-  x |> dplyr::select(-dplyr::matches(omit)) |>
-    dplyr::group_by(group)
-}
-
+#' group_cma_
+#' grouping the records of cma
+#' 
+#' @param x dataframe
 group_cma_ <- function(x= fread_cma_()){
   x |> dplyr::mutate(group = dplyr::case_when(stringr::str_detect(libelle, "CHQ|CHEQUE|VIR SEPA")~"chq-vir",
                                               stringr::str_detect(libelle, "LOYER|JESSICA|ROHR|MEHL|WABEAL|SEBESCAN|ERNENWEIN|PIASNY|BARTHEL")~"loyer",
@@ -65,13 +98,34 @@ group_cma_ <- function(x= fread_cma_()){
                                               TRUE~NA))
 }
 
-cube_cma_ <- function(x= mini_cma_(), omit="libelle"){
+#' mini_cma_
+#' mini_tibble of selected columns 
+#' 
+#' @param x dataframe
+#' @param omit regex
+mini_cma_ <- function(x= group_cma_(), omit= "^date|^tab|^code|^operation|^valeur|^bank|^comptable"){
+  group <- NULL
   x |> dplyr::select(-dplyr::matches(omit)) |>
+    dplyr::group_by(group)
+}
+
+#' cube_cma_
+#' data_cube of cma
+#' 
+#' @param x dataframe
+#' @param omit regex
+cube_cma_ <- function(x= mini_cma_(), omit="libelle"){
+value <- NULL
+    x |> dplyr::select(-dplyr::matches(omit)) |>
     tidyr::pivot_longer(cols= c('debit','credit'), names_to="var") |>
     dplyr::filter(value!= 0) |>
     data.table::data.table()
 }
 
+#' gt_cma_
+#' gt rendering of cma
+#' 
+#' @param x dataframe
 gt_cma_ <- function(x= group_cma_()){
   x |> gt::gt()
 }
