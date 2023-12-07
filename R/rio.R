@@ -34,11 +34,16 @@ debit <- credit <- comptable <- NULL
   names(result) <- tolower(names(result)) |> 
     stringi::stri_trans_general('Latin-ASCII')
   
-  result <- result |> 
+  result <- result |>
     dplyr::mutate(comptable = dplyr::case_when(is.na(comptable)~libelle,
                                                      TRUE~comptable),
+                  libelle =  dplyr::case_when(is.na(libelle)~comptable,
+                                              TRUE~libelle),
                   date = lubridate::dmy(stringr::str_extract(comptable,"\\d{2}/\\d{2}/\\d{4}")),
-                  year = lubridate::year(date)
+                  year = lubridate::year(date),
+                  period = lubridate::floor_date(
+                            date,
+                            unit = "month")
                   )
   return(result)
 }
@@ -67,8 +72,17 @@ read_all_ <- function(x=2012:2021){
 #' fast write of csv file
 #' 
 #' @param x path
-fwrite_cma_ <- function(x= read_all_()){
-  data.table::fwrite(x, path_("cma.csv"))
+fwrite_cma_ <- function(x= read_all_(), y= "cma_raw.csv"){
+  data.table::fwrite(x, path_(y))
+}
+
+#' fwrite_cube_
+#' fast write of cube file
+#' 
+#' @param x path
+fwrite_cube_ <- function(x= read_all_() |> group_cma_() |> cube_cma_(), 
+                         y= "cma_cube.csv"){
+  data.table::fwrite(x, path_(y))
 }
 
 #' fread_cma_
@@ -76,7 +90,16 @@ fwrite_cma_ <- function(x= read_all_()){
 #' 
 #' @param x path
 #' @export
-fread_cma_ <- function(x= path_("cma.csv")){
+fread_cma_ <- function(x= path_(x= "cma.csv")){
+  data.table::fread(x)
+}
+
+#' fread_cube
+#' fast read of cube file
+#' 
+#' @param x path
+#' @export
+fread_cube_ <- function(x= path_(x= "cma_cube.csv")){
   data.table::fread(x)
 }
 
@@ -85,10 +108,10 @@ fread_cma_ <- function(x= path_("cma.csv")){
 #' 
 #' @param x dataframe
 group_cma_ <- function(x= fread_cma_()){
-  x |> dplyr::mutate(group = dplyr::case_when(stringr::str_detect(libelle, "CHQ|CHEQUE|VIR SEPA")~"chq-vir",
+  x |> dplyr::mutate(group = dplyr::case_when(stringr::str_detect(libelle, "SALZEMAN|THIBAUT|HUGO|THEO|LEPRE|VIR MLE MICHELE|VIR M PIERRE FISCHER|MISSIONSWERK|PORTES OUVERTES")~"libe",
+                                              stringr::str_detect(libelle, "CHQ|CHEQUE|VIR SEPA")~"chq-vir",
                                               stringr::str_detect(libelle, "LOYER|JESSICA|ROHR|MEHL|WABEAL|SEBESCAN|ERNENWEIN|PIASNY|BARTHEL")~"loyer",
                                               stringr::str_detect(libelle, "URSSAF|PREV. ARTISANALE|CPAM|CAISSE REGIONALE D ASSUR|PREVOYANCE|U R S S A F|VIR SECU INDEP")~"secu",
-                                              stringr::str_detect(libelle, "SALZEMAN|THIBAUT|HUGO|THEO|LEPRE|VIR MLE MICHELE|VIR M PIERRE FISCHER|MISSIONSWERK|PORTES OUVERTES")~"libe",
                                               stringr::str_detect(libelle, "ENERGIES|EAU|TIP LDEF|GARDE|FRAIS|VEOLIA|CHAUFFAGE|CIRRUS|CHEQUIER|CORAIL|AURORE 2000|PARTS SOCIALES|REMUNERATION|PSB AVENIR|PART B|ESSAI VIREMENT|ANNU RET")~"charges",
                                               stringr::str_detect(libelle, "ASSURANCE RETRA|RSI|CARSAT|AG2R|REUNICA|ASSUR RETRAITE")~"pension",
                                               stringr::str_detect(libelle, "SEPA DIRECTION GENERALE|TIP IMPOT|VIR DGFIP|DRFIP")~"taxe",
@@ -98,15 +121,16 @@ group_cma_ <- function(x= fread_cma_()){
                                               TRUE~NA))
 }
 
-#' mini_cma_
-#' mini_tibble of selected columns 
+#' mini_cube_
+#' mini_tibble long of selected columns 
 #' 
 #' @param x dataframe
 #' @param omit regex
-mini_cma_ <- function(x= group_cma_(), omit= "^date|^tab|^code|^operation|^valeur|^bank|^comptable"){
+mini_cube_ <- function(x= fread_cube_(), omit= "^Xdate|^tab|^Xcode|^operation|^valeur|^bank|^comptable"){
   group <- NULL
   x |> dplyr::select(-dplyr::matches(omit)) |>
-    dplyr::group_by(group)
+    dplyr::group_by(group) |>
+    data.table::data.table()
 }
 
 #' cube_cma_
@@ -114,10 +138,12 @@ mini_cma_ <- function(x= group_cma_(), omit= "^date|^tab|^code|^operation|^valeu
 #' 
 #' @param x dataframe
 #' @param omit regex
-cube_cma_ <- function(x= mini_cma_(), omit="libelle"){
+cube_cma_ <- function(x= group_cma_(), omit="Xlibelle"){
 value <- NULL
     x |> dplyr::select(-dplyr::matches(omit)) |>
     tidyr::pivot_longer(cols= c('debit','credit'), names_to="var") |>
+    dplyr::mutate(var = dplyr::case_when((group == "solde" & month== 12)~"solde",
+                                   TRUE~var)) |>
     dplyr::filter(value!= 0) |>
     data.table::data.table()
 }

@@ -10,9 +10,33 @@ knitr::opts_chunk$set(echo = TRUE)
 library(cma)
 ```
 
-hello
+This report is 
 
-```{r}
-cma::fread_cma_()
+```{r, mseries}
+mini_cube_()[!is.na(code),.(value=sum(value)),.(var,month)]
 ```
 
+
+```{r,  solde_gt}
+mini_cube_()[,.(value=sum(value)),.(var,year)][var=="solde"] |> 
+  tidyr::pivot_wider(
+    names_from = var,
+    values_from = c(value)) |>
+  gt::gt() |>
+  gt::fmt_number(
+    columns = solde,
+    decimals = 0,
+    sep_mark = " ")
+```
+
+```{r,  solde_gg}
+mini_cube_()[,.(value=sum(value)),.(var,year)][var=="solde"] |>
+  ggplot2::ggplot(mapping= ggplot2::aes(x= year, y=value)) +
+  ggplot2::geom_point()
+```
+
+```{r,  freq}
+mini_cube_()[!is.na(code),.(value=sum(value)),.(var,month)] |>
+  ggplot2::ggplot(mapping= ggplot2::aes(x= value)) +
+  ggplot2::geom_histogram()
+```
