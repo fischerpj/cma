@@ -7,13 +7,49 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(cma)
+library(cma, data.table)
 ```
 
 This report is 
 
+```{r}
+nosolde_()[abs(value)>49000,.(libelle,value,var,period)]
+```
+
+
+```{r, exception}
+nosolde_()[var %like% "exception",.(libelle,value,var,period)][order(-value)] |>
+  gt::gt()
+```
+
+
+```{r}
+nosolde_()[,.(value=sum(value)),.(group,period)] |>
+  dplyr::group_by(group) |>
+  dplyr::mutate(value= cumsum(value)) |>
+  dplyr::arrange(group,period) |>
+  ggplot2::ggplot(mapping= ggplot2::aes(x= period, y=value, color= group)) +
+  ggplot2::geom_line()
+```
+
 ```{r, mseries}
-mini_cube_()[!is.na(code),.(value=sum(value)),.(var,month)]
+
+
+mseries <- nosolde_()[,.(value=sum(value)),.(period,group)]
+cseries <- nosolde_()[,.(value=cumsum(value)),.(group,period)]
+
+```
+
+```{r, exception}
+mseries[,.(max= max(abs(value))), .(group)]
+```
+
+
+```{r, mseries}
+mseries <- nosolde_()[,.(value=sum(value)),.(var,period,group)]
+mseries |>
+  ggplot2::ggplot(mapping= ggplot2::aes(x= period, y=value, color= group)) +
+  ggplot2::geom_point()
 ```
 
 

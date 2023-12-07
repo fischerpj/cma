@@ -1,5 +1,8 @@
 # cma
 Credit Mutuel Analysis
+## data
+- cma_raw.csv with *group** enrichment results from read_sheet_ read_year_ read_all_ group_cma_ **fwrite_cma_** OR **fread_cma_**
+
 ## logs
 1. create **AS repo bare** with [README,LICENSE] : this https://github.com/fischerpj/cma.git
 2. in Docker/xv2 clone **AS R-project-package** "cma"  with  [DESCRIPTION, NAMESPACE, R/, man/]

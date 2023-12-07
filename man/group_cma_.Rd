@@ -5,7 +5,7 @@
 \title{group_cma_
 grouping the records of cma}
 \usage{
-group_cma_(x = fread_cma_())
+group_cma_(x = fread_raw_())
 }
 \arguments{
 \item{x}{dataframe}
