@@ -1,6 +1,6 @@
 
 #' fread_raw_
-#' fast read of csv file
+#' fast read of csv file holding raw cma dataset
 #' 
 #' @param x path
 #' @export
@@ -38,7 +38,7 @@ group_cma_ <- function(x= fread_raw_()){
 }
 
 #' read_all_
-#' read all years of data
+#' read all years of cma datasets
 #' 
 #' @param x range of years
 read_all_ <- function(x=2012:2021){
@@ -141,7 +141,7 @@ fwrite_long_ <- function(x= mini_long_(),
 }
 
 #' mini_long_
-#' mini_tibble long of selected columns 
+#' mini_tibble long for 2500 rows of selected columns 
 #' 
 #' @param x dataframe
 #' @param omit regex

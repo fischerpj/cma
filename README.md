@@ -1,7 +1,8 @@
-# cma
-Credit Mutuel Analysis
+# cma Credit Mutuel Analysis
+
 ## data
 - cma_raw.csv with *group** enrichment results from read_sheet_ read_year_ read_all_ group_cma_ **fwrite_cma_** OR **fread_cma_**
+- main dataset to start any analyss from is **mini_long_**
 
 ## logs
 1. create **AS repo bare** with [README,LICENSE] : this https://github.com/fischerpj/cma.git
@@ -15,5 +16,6 @@ $ sudo chown -R rstudio data/cm_cc
 $ sudo chgrp -R rstudio data/cm_cc
 
 4. gh auth login seems already done and not requiring password
+
 ## issues
 - fix LICENSE in DESCRIPTION and LICENSE
