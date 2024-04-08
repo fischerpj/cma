@@ -1,0 +1,20 @@
+---
+title: "Macro Chiffres "
+author: "pjf"
+date: "2024-04-08"
+categories: [finance]
+---
+
+```{r, dataset}
+library(cma)
+data <- mini_long_() |> nosolde_()  
+
+```
+
+```{r}
+data[, .(GT=sum(value)),.(dc,year)] |>
+  gt_cma_()
+```
+
+```{}
+```

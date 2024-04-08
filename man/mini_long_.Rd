@@ -3,11 +3,11 @@
 \name{mini_long_}
 \alias{mini_long_}
 \title{mini_long_
-mini_tibble long of selected columns}
+mini_tibble long for 2500 rows of selected columns}
 \usage{
 mini_long_(
   x = long_cma_(),
-  omit = "^date|^tab|^code|^operation|^valeur|^bank|^comptable"
+  omit = "group|^date|^tab|^code|^operation|^valeur|^bank|^comptable"
 )
 }
 \arguments{
@@ -17,5 +17,5 @@ mini_long_(
 }
 \description{
 mini_long_
-mini_tibble long of selected columns
+mini_tibble long for 2500 rows of selected columns
 }

@@ -110,13 +110,24 @@ path_ <- function(x= "CMCC2021.xlsx"){
 
 #========================================================
 
+#' cheque_
+#' gros cheques
+#' 
+#' @param x transaction
+#' @export
+cheque_ <- function(x = nosolde_()){
+  var <- NULL
+  x |> 
+    dplyr::filter(stringr::str_detect(var,"^chq"))
+}
+
 #' nosolde_
 #' transactions no_solde
 #' 
 #' @param x path
 #' @export
-nosolde_ <- function(x= fread_long_()){
-group <- NULL  
+nosolde_ <- function(x= mini_long_()){
+var <- group <- NULL  
   x |> dplyr::filter(!stringr::str_detect(var,"^solde")) |>
     data.table::data.table()
 }
@@ -145,10 +156,11 @@ fwrite_long_ <- function(x= mini_long_(),
 #' 
 #' @param x dataframe
 #' @param omit regex
+#' @export
 mini_long_ <- function(x= long_cma_(), omit= "group|^date|^tab|^code|^operation|^valeur|^bank|^comptable"){
-  group <- NULL
+  var <- group <- NULL
   x |> 
-    dplyr::mutate(var= paste(group,var,sep="-")) |>
+    dplyr::mutate(var= paste(group,dc,sep="-")) |>
     dplyr::select(-dplyr::matches(omit)) |>
     dplyr::group_by(var) |>
     data.table::data.table()
@@ -162,8 +174,9 @@ mini_long_ <- function(x= long_cma_(), omit= "group|^date|^tab|^code|^operation|
 long_cma_ <- function(x= fread_raw_(), omit="Xlibelle"){
   value <- NULL
   x |> dplyr::select(-dplyr::matches(omit)) |>
-    tidyr::pivot_longer(cols= c('debit','credit'), names_to="var") |>
+    tidyr::pivot_longer(cols= c('debit','credit'), names_to="dc") |>
     dplyr::filter(value!= 0) |>
+    dplyr::mutate(year= as.character(year)) |>
     data.table::data.table()
 }
 

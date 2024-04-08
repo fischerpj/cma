@@ -3,7 +3,7 @@
 \name{fread_raw_}
 \alias{fread_raw_}
 \title{fread_raw_
-fast read of csv file}
+fast read of csv file holding raw cma dataset}
 \usage{
 fread_raw_(x = path_(x = "cma_raw.csv"))
 }
@@ -12,5 +12,5 @@ fread_raw_(x = path_(x = "cma_raw.csv"))
 }
 \description{
 fread_raw_
-fast read of csv file
+fast read of csv file holding raw cma dataset
 }

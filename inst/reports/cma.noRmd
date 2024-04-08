@@ -10,18 +10,16 @@ knitr::opts_chunk$set(echo = TRUE)
 library(cma, data.table)
 ```
 
-This report is 
+This report is
 
-```{r}
+```{r, bigcheque}
 nosolde_()[abs(value)>49000,.(libelle,value,var,period)]
 ```
-
 
 ```{r, exception}
 nosolde_()[var %like% "exception",.(libelle,value,var,period)][order(-value)] |>
   gt::gt()
 ```
-
 
 ```{r}
 nosolde_()[,.(value=sum(value)),.(group,period)] |>
@@ -33,25 +31,21 @@ nosolde_()[,.(value=sum(value)),.(group,period)] |>
 ```
 
 ```{r, mseries}
-
-
 mseries <- nosolde_()[,.(value=sum(value)),.(period,group)]
 cseries <- nosolde_()[,.(value=cumsum(value)),.(group,period)]
 
 ```
 
-```{r, exception}
+```{r, exception2}
 mseries[,.(max= max(abs(value))), .(group)]
 ```
 
-
-```{r, mseries}
+```{r, mseries2}
 mseries <- nosolde_()[,.(value=sum(value)),.(var,period,group)]
 mseries |>
   ggplot2::ggplot(mapping= ggplot2::aes(x= period, y=value, color= group)) +
   ggplot2::geom_point()
 ```
-
 
 ```{r,  solde_gt}
 mini_cube_()[,.(value=sum(value)),.(var,year)][var=="solde"] |> 

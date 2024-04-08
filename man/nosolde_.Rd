@@ -5,7 +5,7 @@
 \title{nosolde_
 transactions no_solde}
 \usage{
-nosolde_(x = fread_long_())
+nosolde_(x = mini_long_())
 }
 \arguments{
 \item{x}{path}

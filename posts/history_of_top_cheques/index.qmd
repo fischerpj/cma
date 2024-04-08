@@ -5,6 +5,21 @@ date: "2024-04-08"
 categories: [finance]
 ---
 
+```{r}
+library(cma)
+my_cheque <- mini_long_() |> nosolde_() |> cheque_() 
+my_cheque |> dplyr::filter(abs(value)> 4000)
+```
+
+```{r}
+nosolde_()[,.(value=sum(value)),.(var,period)] |>
+  dplyr::group_by(var) |>
+  dplyr::mutate(value= cumsum(value)) |>
+  dplyr::arrange(var,period) |>
+  ggplot2::ggplot(mapping= ggplot2::aes(x= period, y=value, color= var)) +
+  ggplot2::geom_line()
+```
+
 This is the first post in a Quarto blog. Welcome!
 
 ![](thumbnail.jpg)

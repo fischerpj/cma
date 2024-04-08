@@ -3,7 +3,7 @@
 \name{read_all_}
 \alias{read_all_}
 \title{read_all_
-read all years of data}
+read all years of cma datasets}
 \usage{
 read_all_(x = 2012:2021)
 }
@@ -12,5 +12,5 @@ read_all_(x = 2012:2021)
 }
 \description{
 read_all_
-read all years of data
+read all years of cma datasets
 }
