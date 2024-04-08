@@ -13,8 +13,5 @@ data <- mini_long_() |> nosolde_()
 
 ```{r}
 data[, .(GT=sum(value)),.(dc,year)] |>
-  gt_cma_()
-```
-
-```{}
+  gt::gt()
 ```
