@@ -24,14 +24,15 @@ fwrite_raw_ <- function(x= read_all_(), y= "cma_raw.csv"){
 #' @param x dataframe
 group_cma_ <- function(x= fread_raw_()){
   x |> dplyr::mutate(group = dplyr::case_when(stringr::str_detect(libelle, "SALZEMAN|THIBAUT|HUGO|THEO|LEPRE|VIR MLE MICHELE|VIR M PIERRE FISCHER|MISSIONSWERK|PORTES OUVERTES")~"libe",
+                                              stringr::str_detect(libelle, "ZANETTE|^SOUS CAP EXP|PSB AVENIR|^CHEQUE 0667488|^CHEQUE 0880812|^CHEQUE 0636297|^CHEQUE 0636297|^SOLDE PEL 01896|^VIR 102780189600013058360$")~"zanette-exception",
+                                              stringr::str_detect(libelle, "PEL|^MLE MICHELE FISCHER$|CLOT 01896 20200401|^VIR 10278018960001305836065")~"exception",
                                               stringr::str_detect(libelle, "CHQ|CHEQUE|VIR SEPA")~"chq-vir",
                                               stringr::str_detect(libelle, "LOYER|JESSICA|ROHR|MEHL|WABEAL|SEBESCAN|ERNENWEIN|PIASNY|BARTHEL")~"loyer",
-                                              stringr::str_detect(libelle, "URSSAF|PREV. ARTISANALE|CPAM|CAISSE REGIONALE D ASSUR|PREVOYANCE|U R S S A F|VIR SECU INDEP")~"secu",
-                                              stringr::str_detect(libelle, "ENERGIES|EAU|TIP LDEF|GARDE|FRAIS|VEOLIA|CHAUFFAGE|CIRRUS|CHEQUIER|CORAIL|AURORE 2000|PARTS SOCIALES|REMUNERATION|PSB AVENIR|PART B|ESSAI VIREMENT|ANNU RET")~"charges",
+                                              stringr::str_detect(libelle, "URSSAF|PREV. ARTISANALE|CPAM|CAISSE REGIONALE D ASSUR|PREVOYANCE|U R S S A F|VIR SECU INDEP|^PRLV SEPA ALSACE")~"secu",
+                                              stringr::str_detect(libelle, "ENERGIES|EAU|TIP LDEF|GARDE|FRAIS|VEOLIA|CHAUFFAGE|CIRRUS|CHEQUIER|CORAIL|AURORE 2000|PARTS SOCIALES|REMUNERATION|PART B|ESSAI VIREMENT|ANNU RET")~"charges",
                                               stringr::str_detect(libelle, "ASSURANCE RETRA|RSI|CARSAT|AG2R|REUNICA|ASSUR RETRAITE")~"pension",
                                               stringr::str_detect(libelle, "SEPA DIRECTION GENERALE|TIP IMPOT|VIR DGFIP|DRFIP")~"taxe",
                                               stringr::str_detect(libelle, "DAB|^RET ")~"cash",
-                                              stringr::str_detect(libelle, "ZANETTE|PEL|VIR 1027801896|^MLE MICHELE FISCHER$|SOUS CAP EXP|SEPA ALSACE FRANCHE COMTE|CLOT 01896 20200401")~"exception",
                                               stringr::str_detect(libelle, "Solde|^$") & month== 1 ~"solde_report",
                                               stringr::str_detect(libelle, "Solde|^$") & month== 12 ~"solde_fin",
                                               TRUE~NA))
@@ -121,6 +122,21 @@ cheque_ <- function(x = nosolde_()){
     dplyr::filter(stringr::str_detect(var,"^chq"))
 }
 
+#' exception
+#' exceptional transactions
+#' 
+#' @param x path
+#' @export
+exception_ <- function(x= nosolde_()){
+  var <- group <- NULL  
+  x |> 
+    dplyr::filter(stringr::str_detect(var,"exception")) |>
+    dplyr::group_by(var) |>
+    dplyr::arrange(year,month) |>
+    data.table::data.table()
+}
+
+
 #' nosolde_
 #' transactions no_solde
 #' 
@@ -157,7 +173,7 @@ fwrite_long_ <- function(x= mini_long_(),
 #' @param x dataframe
 #' @param omit regex
 #' @export
-mini_long_ <- function(x= long_cma_(), omit= "group|^date|^tab|^code|^operation|^valeur|^bank|^comptable"){
+mini_long_ <- function(x= long_cma_(), omit= "^dc$|period|group|^date|^tab|^code|^operation|^valeur|^bank|^comptable"){
   var <- group <- NULL
   x |> 
     dplyr::mutate(var= paste(group,dc,sep="-")) |>

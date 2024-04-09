@@ -7,7 +7,7 @@ mini_tibble long for 2500 rows of selected columns}
 \usage{
 mini_long_(
   x = long_cma_(),
-  omit = "group|^date|^tab|^code|^operation|^valeur|^bank|^comptable"
+  omit = "period|group|^date|^tab|^code|^operation|^valeur|^bank|^comptable"
 )
 }
 \arguments{

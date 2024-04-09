@@ -1,0 +1,25 @@
+---
+title: "CMA Exceptions "
+author: "pjf"
+date: "2024-04-09"
+categories: [finance]
+---
+
+CMA exceptions are outbound accounting movement of cash, not compensated by the gain of goods or services or charges.
+
+```{r, dataset}
+library(cma)
+library(data.table)
+
+data <- mini_long_() |> nosolde_()  
+```
+
+```{r}
+data_exception <- data |> exception_()
+data_exception |> gt::gt()
+```
+
+```{r}
+data[, .(GT=sum(value)),.(dc,year)] |>
+  gt::gt()
+```
