@@ -173,7 +173,7 @@ fwrite_long_ <- function(x= mini_long_(),
 #' @param x dataframe
 #' @param omit regex
 #' @export
-mini_long_ <- function(x= long_cma_(), omit= "^dc$|period|group|^date|^tab|^code|^operation|^valeur|^bank|^comptable"){
+mini_long_ <- function(x= long_cma_(), omit= "^Xdc$|period|group|^date|^tab|^code|^operation|^valeur|^bank|^comptable"){
   var <- group <- NULL
   x |> 
     dplyr::mutate(var= paste(group,dc,sep="-")) |>

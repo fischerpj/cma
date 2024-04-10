@@ -2,6 +2,10 @@
 
 aka lotz_track
 
+## run
+
+- quarto render (in terminal )
+
 ## data
 
 -   cma_raw.csv with \*group **enrichment results from read_sheet\_ read_year\_ read_all\_ group_cma\_** fwrite_cma\_ **OR** fread_cma\_\*\*

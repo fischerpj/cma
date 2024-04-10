@@ -1,6 +1,9 @@
 project:
   type: website
   output-dir: docs
+  
+execute:
+  echo: false  
 
 website:
   title: "lotz_track"

@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/cma_exceptions/index.html",
       "/posts/post-with-code/index.html",
       "/posts/history_of_top_cheques/index.html",
       "/posts/macro_chiffres/index.html",
