@@ -1,4 +1,4 @@
-# cma Credit Mutuel Analysis alias cma
+# cma Credit Mutuel Analysis alias cma.git
 
 aka package 'lotz_track', which is now superseded, relayed by lotz_scribe as convenient quarto_book 
 
