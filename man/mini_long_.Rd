@@ -3,7 +3,7 @@
 \name{mini_long_}
 \alias{mini_long_}
 \title{mini_long_
-mini_tibble long for 2500 rows of selected columns}
+mini_tibble long for extensive 2454 rows ( soldes and Zanette rows inlcuded) of selected columns}
 \usage{
 mini_long_(
   x = long_cma_(),
@@ -17,5 +17,5 @@ mini_long_(
 }
 \description{
 mini_long_
-mini_tibble long for 2500 rows of selected columns
+mini_tibble long for extensive 2454 rows ( soldes and Zanette rows inlcuded) of selected columns
 }

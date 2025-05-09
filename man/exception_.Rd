@@ -3,7 +3,7 @@
 \name{exception_}
 \alias{exception_}
 \title{exception
-exceptional transactions}
+pinpoint the exceptional transactions in mainly Zanette and a few others}
 \usage{
 exception_(x = nosolde_())
 }
@@ -12,5 +12,5 @@ exception_(x = nosolde_())
 }
 \description{
 exception
-exceptional transactions
+pinpoint the exceptional transactions in mainly Zanette and a few others
 }

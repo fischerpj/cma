@@ -1,6 +1,6 @@
-# cma Credit Mutuel Analysis
+# cma Credit Mutuel Analysis alias cma
 
-aka lotz_track
+aka package 'lotz_track', which is now superseded, relayed by lotz_scribe as convenient quarto_book 
 
 ## run
 
@@ -9,7 +9,7 @@ aka lotz_track
 ## data
 
 -   cma_raw.csv with \*group **enrichment results from read_sheet\_ read_year\_ read_all\_ group_cma\_** fwrite_cma\_ **OR** fread_cma\_\*\*
--   main dataset to start any analyss from is **mini_long\_**
+-   main dataset to start any analysis from is **mini_long\_**
 
 ## logs
 

@@ -9,14 +9,16 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
-  data.table,
-  dplyr,
-  gt,
-  here,
-  lubridate,
-  purrr,
-  readxl,
-  stringi,
-  stringr,
-  tidyr
+    data.table,
+    dplyr,
+    ggplot2,
+    gt,
+    here,
+    lubridate,
+    purrr,
+    readxl,
+    stringi,
+    stringr,
+    tibble,
+    tidyr
 RoxygenNote: 7.2.3

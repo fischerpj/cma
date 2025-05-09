@@ -23,10 +23,18 @@ fwrite_raw_ <- function(x= read_all_(), y= "cma_raw.csv"){
 #' 
 #' @param x dataframe
 group_cma_ <- function(x= fread_raw_()){
-  x |> dplyr::mutate(group = dplyr::case_when(stringr::str_detect(libelle, "SALZEMAN|THIBAUT|HUGO|THEO|LEPRE|VIR MLE MICHELE|VIR M PIERRE FISCHER|MISSIONSWERK|PORTES OUVERTES")~"libe",
-                                              stringr::str_detect(libelle, "ZANETTE|^SOUS CAP EXP|PSB AVENIR|^CHEQUE 0667488|^CHEQUE 0880812|^CHEQUE 0636297|^CHEQUE 0636297|^SOLDE PEL 01896|^VIR 102780189600013058360$")~"zanette-exception",
+  group <- NULL
+  nowork <- noworkid_()
+  
+  x |> dplyr::mutate(group = dplyr::case_when(stringr::str_detect(libelle, "ZANETTE|^SOUS CAP EXP|PSB AVENIR|^CHEQUE 0667488|^CHEQUE 0880812|^CHEQUE 0636297|^CHEQUE 0636297|^SOLDE PEL 01896|^VIR 102780189600013058360$") ~"zanette-exception",
+                                              stringr::str_detect(libelle, "INTERETS PARTS SOCIALES|REMUNERATION") & rid != 2136 & rid != 2321 & rid != 100 & rid != 321    ~"zanette-exception",
+                                              rid == 1852 ~"zanette-exception",
+                                              rid == 1313 ~"zanette-exception",
+                                              (stringr::str_detect(libelle, "CHQ|CHEQUE") & debit <= -1000 & rid %in% nowork) ~ "grochq",
+                                              (stringr::str_detect(libelle, "CHQ|CHEQUE") & debit <= -1000) ~ "grotravo",
+                                              stringr::str_detect(libelle, "CHQ|CHEQUE|VIR SEPA")~"chqvir",
+                                              stringr::str_detect(libelle, "SALZEMAN|THIBAUT|HUGO|THEO|LEPRE|VIR MLE MICHELE|VIR M PIERRE FISCHER|MISSIONSWERK|PORTES OUVERTES")~"libe",
                                               stringr::str_detect(libelle, "PEL|^MLE MICHELE FISCHER$|CLOT 01896 20200401|^VIR 10278018960001305836065")~"exception",
-                                              stringr::str_detect(libelle, "CHQ|CHEQUE|VIR SEPA")~"chq-vir",
                                               stringr::str_detect(libelle, "LOYER|JESSICA|ROHR|MEHL|WABEAL|SEBESCAN|ERNENWEIN|PIASNY|BARTHEL")~"loyer",
                                               stringr::str_detect(libelle, "URSSAF|PREV. ARTISANALE|CPAM|CAISSE REGIONALE D ASSUR|PREVOYANCE|U R S S A F|VIR SECU INDEP|^PRLV SEPA ALSACE")~"secu",
                                               stringr::str_detect(libelle, "ENERGIES|EAU|TIP LDEF|GARDE|FRAIS|VEOLIA|CHAUFFAGE|CIRRUS|CHEQUIER|CORAIL|AURORE 2000|PARTS SOCIALES|REMUNERATION|PART B|ESSAI VIREMENT|ANNU RET")~"charges",
@@ -38,13 +46,16 @@ group_cma_ <- function(x= fread_raw_()){
                                               TRUE~NA))
 }
 
+## PRLV SEPA DIRECTION GENERALE 
+
 #' read_all_
 #' read all years of cma datasets
 #' 
 #' @param x range of years
 read_all_ <- function(x=2012:2021){
   x |> purrr::map_dfr(read_year_) |>
-    dplyr::arrange(date)
+    dplyr::arrange(date)  |>
+    tibble::rowid_to_column( "rid")
 }
 
 #' read_year_
@@ -106,29 +117,41 @@ sheets_ <- function(x= path_(y), y= "CMCC2021.xlsx"){
 #' 
 #' @param x last filename
 path_ <- function(x= "CMCC2021.xlsx"){
-  here::here("inst/extdata/cmcc/XLSX", x)
+##  here::here("inst/extdata/cmcc/XLSX", x)
+  paste("/home/rstudio/projects/lotz_track/inst/extdata/cmcc/XLSX", x, sep="/")
 }
 
 #========================================================
 
-#' cheque_
+#' noworkid_
+#' cheque NOT WORK
+#' 
+#' @param x transaction
+#' @export
+noworkid_ <- function(x = grochq_()){
+  nowork <- c(2082,1851,1659,106,2097,673)
+  return(nowork)
+}
+
+
+#' grochq_
 #' gros cheques
 #' 
 #' @param x transaction
 #' @export
-cheque_ <- function(x = nosolde_()){
+grochq_ <- function(x = nosolde_()){
   var <- NULL
   x |> 
-    dplyr::filter(stringr::str_detect(var,"^chq"))
+    dplyr::filter(stringr::str_detect(var,"^gro"))
 }
 
 #' exception
-#' exceptional transactions
+#' pinpoint the exceptional transactions in mainly Zanette and a few others 
 #' 
 #' @param x path
 #' @export
 exception_ <- function(x= nosolde_()){
-  var <- group <- NULL  
+  year <- month <- var <- group <- NULL  
   x |> 
     dplyr::filter(stringr::str_detect(var,"exception")) |>
     dplyr::group_by(var) |>
@@ -136,6 +159,16 @@ exception_ <- function(x= nosolde_()){
     data.table::data.table()
 }
 
+#' nozanette_
+#' transactions hors Zanette
+#' 
+#' @param x path
+#' @export
+nozanette_ <- function(x= nosolde_()){
+  var <- group <- NULL  
+  x |> dplyr::filter(!stringr::str_detect(var,"^zanette")) |>
+    data.table::data.table()
+}
 
 #' nosolde_
 #' transactions no_solde
@@ -168,15 +201,16 @@ fwrite_long_ <- function(x= mini_long_(),
 }
 
 #' mini_long_
-#' mini_tibble long for 2500 rows of selected columns 
+#' mini_tibble long for extensive 2454 rows ( soldes and Zanette rows inlcuded) of selected columns 
 #' 
 #' @param x dataframe
 #' @param omit regex
 #' @export
 mini_long_ <- function(x= long_cma_(), omit= "^Xdc$|period|group|^date|^tab|^code|^operation|^valeur|^bank|^comptable"){
-  var <- group <- NULL
+  dc <- var <- group <- NULL
   x |> 
-    dplyr::mutate(var= paste(group,dc,sep="-")) |>
+    dplyr::mutate(var= dplyr::case_when(stringr::str_detect(group, "grochq|grotravo")~"gros-debit",
+                                        TRUE~ paste(group,dc,sep="-"))) |>
     dplyr::select(-dplyr::matches(omit)) |>
     dplyr::group_by(var) |>
     data.table::data.table()
@@ -188,11 +222,17 @@ mini_long_ <- function(x= long_cma_(), omit= "^Xdc$|period|group|^date|^tab|^cod
 #' @param x dataframe
 #' @param omit regex
 long_cma_ <- function(x= fread_raw_(), omit="Xlibelle"){
-  value <- NULL
+  group <- value <- NULL
   x |> dplyr::select(-dplyr::matches(omit)) |>
     tidyr::pivot_longer(cols= c('debit','credit'), names_to="dc") |>
     dplyr::filter(value!= 0) |>
     dplyr::mutate(year= as.character(year)) |>
+    ##
+    dplyr::mutate(isZanette = stringr::str_detect(group,"^zanette"),
+                  dc = dplyr::case_when(group == "grochq"~"gros_cheques",
+                                        group == "grotravo"~"gros_travaux",
+                                        TRUE~dc),
+                  ts = lubridate::dmy(paste("1",month,year,sep="/"))) |>
     data.table::data.table()
 }
 
